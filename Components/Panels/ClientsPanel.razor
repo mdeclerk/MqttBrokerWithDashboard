@@ -1,0 +1,46 @@
+@implements IDisposable
+@inject MqttBrokerService mqtt
+
+@if (mqtt.ConnectedClients.Count == 0)
+{
+    <MudPaper Class="py-8" Outlined="true">
+        <MudText Align="Align.Center">No clients in list.</MudText>
+    </MudPaper>
+}
+else
+{
+    <MudTable T="MqttClient" Items="mqtt.ConnectedClients" Striped="true" Elevation="0">
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<MqttClient, object>(x => x.TimeOfConnection)">Time</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClient, object>(x => x.ClientId)">ClientId</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Time">@context.TimeOfConnection.ToLongTimeString()</MudTd>
+            <MudTd DataLabel="ClientId">@context.ClientId</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{5, 10, 20}" />
+        </PagerContent>
+    </MudTable>
+}
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        mqtt.OnClientConnected += OnClientConnected;
+        mqtt.OnClientDisconnected += OnClientDisconnected;
+    }
+
+    public void Dispose()
+    {
+        mqtt.OnClientConnected -= OnClientConnected;
+        mqtt.OnClientDisconnected -= OnClientDisconnected;
+    }
+
+    void OnClientConnected(MqttServerClientConnectedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) => InvokeAsync(StateHasChanged);
+}

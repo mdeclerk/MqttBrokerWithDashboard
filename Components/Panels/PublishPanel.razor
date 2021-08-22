@@ -1,0 +1,29 @@
+@inject MqttBrokerService mqtt
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="_topic" Immediate="true" Label="Topic" />
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="_payload" Immediate="true" Label="Payload" />
+    </MudItem>
+    <MudItem xs="12" >
+        <MudSwitch @bind-Checked="_retained" Label="Retain" Color="Color.Primary" Class="me-6"/>
+    </MudItem>
+    <MudItem xs="12">
+        <MudButton StartIcon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="Publish" Disabled="IsPublishDisabled">Publish</MudButton>
+    </MudItem>
+</MudGrid>
+
+@code
+{
+    string _topic = "MyTopic";
+
+    string _payload = "MyPayload";
+
+    bool _retained;
+
+    bool IsPublishDisabled => string.IsNullOrWhiteSpace(_topic) || string.IsNullOrWhiteSpace(_payload);
+
+    void Publish() => mqtt.Publish(_topic, _payload, _retained);
+}

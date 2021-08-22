@@ -1,0 +1,115 @@
+@inject MqttBrokerService mqtt
+
+<MudExpansionPanels MultiExpansion="true" >
+    <!-- Configuration Panel -->
+    @if (!Program.HostConfig.HideConfigPanel)
+    {
+        <MudExpansionPanel IsInitiallyExpanded="true">
+            <TitleContent>
+                <div class="d-flex">
+                    <MudIcon Icon="@Icons.Material.Filled.Build" Color="Color.Default" Class="me-4"/>
+                    <MudText><strong>Configuration</strong></MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <ConfigurationPanel />
+            </ChildContent>
+        </MudExpansionPanel>
+    }
+
+    <!-- Clients Panel -->
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudBadge Content="@mqtt.ConnectedClients.Count" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
+                    <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Default"/>
+                </MudBadge>
+                <MudText><strong>Clients</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <ClientsPanel />
+        </ChildContent>
+    </MudExpansionPanel>
+
+    <!-- Publish Panel -->
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon="@Icons.Material.Filled.Send" Color="Color.Default" Class="me-4" />
+                <MudText><strong>Publish</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <PublishPanel />
+        </ChildContent>
+    </MudExpansionPanel>
+
+    <!-- Messages Panel -->
+    <MudExpansionPanel @bind-IsExpanded="IsMessagesPanelExpanded">
+        <TitleContent>
+            <div class="d-flex">
+                @{
+                    var numberStr = _numberOfUnseenMessages > 99 ? "+99" : _numberOfUnseenMessages.ToString();
+                    if (!_isMessagesPanelExpanded && _numberOfUnseenMessages > 0)
+                    {
+                        <MudBadge Content="@numberStr" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
+                            <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default"/>
+                        </MudBadge>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" Class="me-4" />
+                    }
+                }
+                <MudText><strong>Messages</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <MessagesPanel />
+        </ChildContent>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@code
+{
+    int _numberOfUnseenMessages = 0;
+
+    bool _isMessagesPanelExpanded;
+    bool IsMessagesPanelExpanded
+    {
+        get => _isMessagesPanelExpanded;
+
+        set
+        {
+            if (value) _numberOfUnseenMessages = 0;
+            _isMessagesPanelExpanded = value;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        mqtt.OnClientConnected += OnClientConnected;
+        mqtt.OnClientDisconnected += OnClientDisconnected;
+        mqtt.OnMessageReceived += OnMessageReceived;
+    }
+
+    public void Dispose()
+    {
+        mqtt.OnClientConnected -= OnClientConnected;
+        mqtt.OnClientDisconnected -= OnClientDisconnected;
+        mqtt.OnMessageReceived -= OnMessageReceived;
+    }
+
+    void OnClientConnected(MqttServerClientConnectedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
+    {
+        if (!_isMessagesPanelExpanded) _numberOfUnseenMessages++;
+        InvokeAsync(StateHasChanged);
+    }
+}
