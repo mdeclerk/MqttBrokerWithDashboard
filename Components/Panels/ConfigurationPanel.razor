@@ -1,8 +1,3 @@
-@using Microsoft.Extensions.Logging
-@inject MqttBrokerService mqtt
-@inject ILogger<ConfigurationPanel> log
-@inject IDialogService dlg
-
 <MudGrid>
     <!-- Tcp Port -->
     <MudItem xs="12">
@@ -16,7 +11,7 @@
 
     <!-- Hide Config Panel At Startup -->
     <MudItem xs="12">
-        <MudSwitch T="bool" Checked="_hideAtStartup" CheckedChanged="HideAtStartupChanged" Label="Hide Panel at Startup" Color="Color.Primary"/>
+        <MudSwitch T="bool" Checked="_hidePanel" CheckedChanged="HidePanelChanged" Label="Hide Configuration Panel" Color="Color.Primary"/>
     </MudItem>
 
     <!-- Reset/Restart -->
@@ -27,75 +22,3 @@
         <MudButton Variant="Variant.Filled" Color="Color.Error" FullWidth="true" Disabled="!IsDirty"  OnClick="SaveAndRestart">Save Changes & Restart</MudButton>
     </MudItem>
 </MudGrid>
-
-@code
-{
-    bool _hideAtStartup;
-
-    int _tcpPort;
-
-    int _httpPort;
-
-    bool IsDirty =>
-        _hideAtStartup != Program.HostConfig.HideConfigPanel ||
-        _tcpPort != Program.HostConfig.TcpPort ||
-        _httpPort != Program.HostConfig.HttpPort;
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        Reset();
-    }
-
-    void Reset()
-    {
-        _hideAtStartup = Program.HostConfig.HideConfigPanel;
-        _tcpPort = Program.HostConfig.TcpPort;
-        _httpPort = Program.HostConfig.HttpPort;
-    }
-
-    void SaveToFile()
-    {
-        Program.HostConfig.HideConfigPanel = _hideAtStartup;
-        Program.HostConfig.TcpPort = _tcpPort;
-        Program.HostConfig.HttpPort = _httpPort;
-
-        Program.HostConfig.SaveToFile();
-    }
-
-    async Task SaveAndRestart()
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", "Do you really want to save changes and restart server?");
-        parameters.Add("ButtonText", "Save & Restart");
-        parameters.Add("Color", Color.Error);
-
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
-
-        var result = await dlg.Show<ConfirmationDialog>("Save & Restart?", parameters, options).Result;
-        if (!result.Cancelled)
-        {
-            log.LogWarning("Save config and restart server ...");
-            SaveToFile();
-            Program.RestartHost();
-        }
-    }
-
-    async Task HideAtStartupChanged(bool value)
-    {
-        if (value)
-        {
-            var parameters = new DialogParameters();
-            parameters.Add("ContentText", $"Do you really want to hide the Configuration Panel at startup? This option can only be undone in '{HostConfig.Filename}' when saved.");
-            parameters.Add("ButtonText", "Ok");
-            parameters.Add("Color", Color.Error);
-
-            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
-
-            var result = await dlg.Show<ConfirmationDialog>("Hide Configuration Panel?", parameters, options).Result;
-            if (result.Cancelled) return;
-        }
-
-        _hideAtStartup = value;
-    }
-}

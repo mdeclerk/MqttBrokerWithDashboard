@@ -47,6 +47,7 @@ namespace MqttBrokerWithDashboard
                     webBuilder.UseStartup<Startup>();
                 });
 
-        public static void RestartHost() => _manualResartCts.Cancel();
+        public static void RestartHost() =>
+            _manualResartCts.Cancel();
     }
 }

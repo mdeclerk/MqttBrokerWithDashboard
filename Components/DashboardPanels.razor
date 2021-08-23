@@ -1,5 +1,3 @@
-@inject MqttBrokerService mqtt
-
 <MudExpansionPanels MultiExpansion="true" >
     <!-- Configuration Panel -->
     @if (!Program.HostConfig.HideConfigPanel)
@@ -21,7 +19,7 @@
     <MudExpansionPanel>
         <TitleContent>
             <div class="d-flex">
-                <MudBadge Content="@mqtt.ConnectedClients.Count" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
+                <MudBadge Content="@_mqtt.ConnectedClients.Count" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
                     <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Default"/>
                 </MudBadge>
                 <MudText><strong>Clients</strong></MudText>
@@ -70,46 +68,3 @@
         </ChildContent>
     </MudExpansionPanel>
 </MudExpansionPanels>
-
-@code
-{
-    int _numberOfUnseenMessages = 0;
-
-    bool _isMessagesPanelExpanded;
-    bool IsMessagesPanelExpanded
-    {
-        get => _isMessagesPanelExpanded;
-
-        set
-        {
-            if (value) _numberOfUnseenMessages = 0;
-            _isMessagesPanelExpanded = value;
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        mqtt.OnClientConnected += OnClientConnected;
-        mqtt.OnClientDisconnected += OnClientDisconnected;
-        mqtt.OnMessageReceived += OnMessageReceived;
-    }
-
-    public void Dispose()
-    {
-        mqtt.OnClientConnected -= OnClientConnected;
-        mqtt.OnClientDisconnected -= OnClientDisconnected;
-        mqtt.OnMessageReceived -= OnMessageReceived;
-    }
-
-    void OnClientConnected(MqttServerClientConnectedEventArgs e) => InvokeAsync(StateHasChanged);
-
-    void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) => InvokeAsync(StateHasChanged);
-
-    void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
-    {
-        if (!_isMessagesPanelExpanded) _numberOfUnseenMessages++;
-        InvokeAsync(StateHasChanged);
-    }
-}

@@ -1,7 +1,4 @@
-@implements IDisposable
-@inject MqttBrokerService mqtt
-
-@if (mqtt.Messages.Count == 0)
+@if (_mqtt.Messages.Count == 0)
 {
     <MudPaper Class="py-8" Outlined="true">
         <MudText Align="Align.Center">No messages in list.</MudText>
@@ -21,7 +18,7 @@ else
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<MqttMessage, object>(x => x.Timestamp)">Time</MudTableSortLabel></MudTh>
             @if (_collapseByTopic)
             {
-                <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => mqtt.MessagesByTopic[x.Topic].Count)">#</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => _mqtt.MessagesByTopic[x.Topic].Count)">#</MudTableSortLabel></MudTh>
             }
             <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => x.Topic)">Topic</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => x.Payload)">Payload</MudTableSortLabel></MudTh>
@@ -31,7 +28,7 @@ else
             <MudTd DataLabel="Time">@context.Timestamp.ToLongTimeString()</MudTd>
             @if (_collapseByTopic)
             {
-                <MudTd DataLabel="#">@mqtt.MessagesByTopic[context.Topic].Count</MudTd>
+                <MudTd DataLabel="#">@_mqtt.MessagesByTopic[context.Topic].Count</MudTd>
             }
             <MudTd DataLabel="Topic">@context.Topic</MudTd>
             <MudTd DataLabel="Payload">@context.Payload</MudTd>
@@ -41,45 +38,4 @@ else
             <MudTablePager PageSizeOptions="new int[]{5, 10, 20}" />
         </PagerContent>
     </MudTable>
-}
-
-@code
-{
-    string _searchString = "";
-
-    bool _collapseByTopic = true;
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        mqtt.OnMessageReceived += OnMessageReceived;
-    }
-
-    public void Dispose()
-    {
-        mqtt.OnMessageReceived -= OnMessageReceived;
-    }
-
-    void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e) => InvokeAsync(StateHasChanged);
-
-    IEnumerable<MqttMessage> GetItems()
-    {
-        if (_collapseByTopic) return mqtt.MessagesByTopic.Values.Select(x => x[0]);
-        return mqtt.Messages;
-    }
-
-    bool FilterFunc(MqttMessage message)
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-        if (message.Client != null && message.Client.ClientId.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (message.Topic != null && message.Topic.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (message.Payload != null && message.Payload.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
-    }
-
-    string GetClientId(MqttMessage message) => message.Client == null ? "SERVER" : message.Client.ClientId;
 }

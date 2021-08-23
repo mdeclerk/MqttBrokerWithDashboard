@@ -59,7 +59,8 @@ namespace MqttBrokerWithDashboard.MqttBroker
         public event Action<MqttApplicationMessageReceivedEventArgs> OnMessageReceived;
 
 
-        public MqttBrokerService(ILogger<MqttBrokerService> log) => _log = log;
+        public MqttBrokerService(ILogger<MqttBrokerService> log) =>
+            _log = log;
 
 
         Task IMqttServerClientConnectedHandler.HandleClientConnectedAsync(MqttServerClientConnectedEventArgs e)
@@ -157,28 +158,21 @@ namespace MqttBrokerWithDashboard.MqttBroker
         }
 
 
-        public void Publish(MqttApplicationMessage message) => _ = Server?.PublishAsync(message);
+        public void Publish(MqttApplicationMessage message) =>
+            _ = Server?.PublishAsync(message);
 
-        public void Publish(string topic, byte[] payload, bool retain)
-        {
-            var message = new MqttApplicationMessageBuilder()
+        public void Publish(string topic, byte[] payload, bool retain) =>
+            Publish(new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
                 .WithPayload(payload)
                 .WithRetainFlag(retain)
-                .Build();
+                .Build());
 
-            Publish(message);
-        }
-
-        public void Publish(string topic, string payload, bool retain)
-        {
-            var message = new MqttApplicationMessageBuilder()
+        public void Publish(string topic, string payload, bool retain) =>
+            Publish(new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
                 .WithPayload(payload)
                 .WithRetainFlag(retain)
-                .Build();
-
-            Publish(message);
-        }
+                .Build());
     }
 }
