@@ -32,10 +32,10 @@ Simple Server App hosting a Mqtt Broker and Dashboard UI for real-time monitorin
 
 Port configuration is stored in "HostConfig.json" and loaded at startup.
 
-- Tcp Port: 1883
+- Tcp Port: 1883 (regular _Mqtt over Tcp_)
 - Http Port: 5000
    - "/"-endpoint serves Dashboard UI
-   - "/mqtt"-endpoint serves Mqtt over Websocket
+   - "/mqtt"-endpoint serves _Mqtt over Websocket_
 
 ## Dependencies
 
