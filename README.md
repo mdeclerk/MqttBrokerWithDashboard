@@ -39,6 +39,6 @@ Port configuration is stored in "HostConfig.json" and loaded at startup.
 
 ## Dependencies
 
-- [MQTTnet.AspNetCore](https://github.com/chkr1011/MQTTnet) Mqtt Library that supports Mqtt over WebSockets
+- [MQTTnet](https://github.com/chkr1011/MQTTnet) Mqtt Library that supports Mqtt over WebSockets
 - [MudBlazor](https://mudblazor.com) Material Design UI Framework for Dashboard Web Frontend
 - [Json.NET](https://www.newtonsoft.com/json) Json Library to load/save Config File
