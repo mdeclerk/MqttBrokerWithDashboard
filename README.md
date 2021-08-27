@@ -1,6 +1,6 @@
 # Mqtt Broker w/ Dashboard
 
-Simple Server App hosting a Mqtt Broker and Dashboard UI for real-time monitoring using [ASP.NET Blazor Server](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor).
+A simple Server-side Application hosting a Mqtt Broker and Dashboard UI for real-time monitoring using [ASP.NET Blazor Server](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor). Use Case is to quickly build and test custom Mqtt infrastucture.
 
 ![MqttBrokerWithDashboard](MqttBrokerWithDashboard.png)
 
