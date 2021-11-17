@@ -6,7 +6,7 @@ A simple Server-side Application hosting a Mqtt Broker and Dashboard UI for real
 
 ## Run in CLI
 
-1. Install [Microsoft .NET SDK 5.0](https://dotnet.microsoft.com/download)
+1. Install [Microsoft .NET SDK 6.0](https://dotnet.microsoft.com/download)
 
 2. Clone Project from GitHub
 
